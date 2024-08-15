@@ -29,6 +29,8 @@ public class ToDoController {
     private int counter = 0;
     private TreeMap<Integer, ToDoItem> map = new TreeMap<>(); // Database to store our definitions.
 
+    private ToDoRepository repository  = new ToDoRepository("jdbc:sqlite:todo.sqlite");
+
     @FXML
     private VBox vbox;
 
@@ -51,6 +53,7 @@ public class ToDoController {
         ToDoItem newItem = new ToDoItem(toAdd, counter);
         map.put(counter, newItem);
         counter++;
+        repository.createToDo(newItem);
         populateData();
     }
 
