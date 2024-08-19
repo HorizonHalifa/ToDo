@@ -18,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -26,19 +27,17 @@ import javafx.scene.layout.VBox;
 public class ToDoController {
 
     @FXML
+    private VBox vbox;
+    @FXML
     private GridPane root;
     private ToDoItem item;
     private int counter = 0;
     private TreeMap<Integer, ToDoItem> map = new TreeMap<>(); // Database to store our items
-
     private TreeMap<Integer, ToDoItem> selectedMap = new TreeMap<>(); // Database to store the selected items.
-
     private ToDoRepository repository  = new ToDoRepository("jdbc:sqlite:todo.sqlite");
 
-    @FXML
-    private VBox vbox;
-
     public void initialize() {
+        map = repository.loadTodo();
         populateData();
     }
 
@@ -85,6 +84,7 @@ public class ToDoController {
     void deletePressed(ActionEvent event) {
         for(Map.Entry<Integer, ToDoItem> entry : selectedMap.entrySet()) {
             map.remove(entry.getKey());
+            repository.deleteTodo(entry.getValue());
             root.getChildren().clear();
             populateData();
         }

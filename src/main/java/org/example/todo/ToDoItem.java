@@ -22,6 +22,12 @@ public class ToDoItem {
         this.id = id;
     }
 
+    public ToDoItem(String name, int id, boolean isDone)  {
+        this.name = name;
+        this.id = id;
+        this.isDone = isDone;
+    }
+
     public int getId() {
         return this.id;
     }
