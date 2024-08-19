@@ -12,6 +12,8 @@ public class ToDoItem {
     private int id;
     private boolean isDone = false;
 
+    private boolean isSelected = false;
+
     public ToDoItem(String name, int id) throws IOException {
         if(name == null) {
             throw(new IOException("Name of ToDoItem can not be empty."));
@@ -31,5 +33,13 @@ public class ToDoItem {
 
     public boolean isDoneProperty() {
         return isDone;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean b) {
+        this.isSelected = b;
     }
 }

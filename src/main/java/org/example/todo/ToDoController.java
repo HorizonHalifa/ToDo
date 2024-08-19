@@ -14,10 +14,12 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -27,7 +29,9 @@ public class ToDoController {
     private GridPane root;
     private ToDoItem item;
     private int counter = 0;
-    private TreeMap<Integer, ToDoItem> map = new TreeMap<>(); // Database to store our definitions.
+    private TreeMap<Integer, ToDoItem> map = new TreeMap<>(); // Database to store our items
+
+    private TreeMap<Integer, ToDoItem> selectedMap = new TreeMap<>(); // Database to store the selected items.
 
     private ToDoRepository repository  = new ToDoRepository("jdbc:sqlite:todo.sqlite");
 
@@ -36,7 +40,6 @@ public class ToDoController {
 
     public void initialize() {
         populateData();
-        // TODO: handleItemClicks
     }
 
     private void populateData() {
@@ -44,6 +47,27 @@ public class ToDoController {
             CheckBox checkBox = new CheckBox();
             root.add(checkBox, 0, entry.getKey());
             root.add(new Label(entry.getValue().toString()), 1, entry.getKey());
+        }
+
+        // Handle mouse overs
+        for (Node node : root.getChildren()) {
+            // Highlight selected nodes and keep track of which nodes are being selected.
+            node.setOnMouseClicked(e ->  {
+                Integer targetIndex = GridPane.getColumnIndex(node);
+                if (GridPane.getColumnIndex(node) == targetIndex) {
+                    int row = GridPane.getRowIndex(node);
+                    ToDoItem selected = map.get(row);
+                    if(selected.isSelected()){ // The item is already selected, so unselect it.
+                        node.setStyle("-fx-background-color:#eaeaea;");
+                        selected.setSelected(false);
+                        selectedMap.remove(row);
+                    } else { // The item is not yet selected, select it.
+                        node.setStyle("-fx-background-color:#ffc584;");
+                        selected.setSelected(true);
+                        selectedMap.put(row, selected);
+                    }
+                }
+            });
         }
     }
 
@@ -58,45 +82,13 @@ public class ToDoController {
     }
 
     @FXML
-    void savePressed(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handleItemClicks(KeyEvent event) {
-
-    }
-    /*
-    void handleItemClicks() { // when a user clicks we want to be able to edit the item they clicked if they click nothing we ignore
-        root.setOnMouseClicked(event -> {
-            ToDoItem selectedItem = root.getSelectionModel().getSelectedItem(); // get what the user clicked
-            if (selectedItem == null) { // user clicked nothing -> ignore
-                return;
-            }
-            System.out.println(selectedItem);
-            int toRemoveKey = selectedItem.getId();
-            String action = JOptionPane.showInputDialog("To delete item, type '1' + \n To edit the item type '2'");
-
-            int actionNum = Integer.parseInt(action);
-            switch (actionNum) {
-                case 1:
-                    map.remove(toRemoveKey);
-                    Dialog<?> d2 = new Alert(Alert.AlertType.CONFIRMATION, "Item has been removed");
-                    d2.show();
-                    break;
-                case 2:
-                    String newName = JOptionPane.showInputDialog("Please provide a new item.");
-                    map.remove(toRemoveKey);
-                    map.put(toRemoveKey, new ToDoItem(newName, toRemoveKey));
-                    break;
-                default:
-                    Dialog<?> d1 = new Alert(Alert.AlertType.ERROR, "Your input must have been '1' or '2'.");
-                    d1.show();
-            }
+    void deletePressed(ActionEvent event) {
+        for(Map.Entry<Integer, ToDoItem> entry : selectedMap.entrySet()) {
+            map.remove(entry.getKey());
+            root.getChildren().clear();
             populateData();
-        });
-    }*/
-
+        }
+    }
 
 }
 
